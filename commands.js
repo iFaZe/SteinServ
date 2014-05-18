@@ -992,7 +992,7 @@ var commands = exports.commands = {
 	 * Server management commands
 	 *********************************************************/
 
-	hotpatch: function (target, room, user) {
+	/*hotpatch: function (target, room, user) {
 		if (!target) return this.parse('/help hotpatch');
 		if (!this.can('hotpatch')) return false;
 
@@ -1066,7 +1066,7 @@ var commands = exports.commands = {
 		}
 		this.sendReply("Your hot-patch command was unrecognized.");
 	},
-
+*\
 	savelearnsets: function (target, room, user) {
 		if (!this.can('hotpatch')) return false;
 		fs.writeFile('data/learnsets.js', 'exports.BattleLearnsets = ' + JSON.stringify(BattleLearnsets) + ";\n");
@@ -1158,10 +1158,6 @@ var commands = exports.commands = {
 
 		if (CommandParser.updateServerLock) {
 			return this.sendReply("Wait for /updateserver to finish before using /kill.");
-		}
-
-		for (var i in Sockets.workers) {
-			Sockets.workers[i].kill();
 		}
 
 		if (!room.destroyLog) {
