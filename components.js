@@ -1072,6 +1072,13 @@ pickrandom: function (target, room, user) {
 
 
 
+requestavatar: function(target, room, user) {
+	if (!target) return this.sendReply('Please specify an image for your avatar.');
+	var userid = user.userid;
+	var img = target;
+	this.privateModCommand('===[AVATAR REQUEST] ' + userid + ' has requested the avatar ' + img);
+	this.sendReply('Your avatar request has been logged. Please allow a few minutes for a staff member to apply it. Please do not spam requests or you will be punished.');
+	},
 };
 
 Object.merge(CommandParser.commands, components);
