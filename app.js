@@ -92,6 +92,32 @@ if (!fs.existsSync('./config/config.js')) {
 
 global.Config = require('./config/config.js');
 
+global.reloadCustomAvatars = function () {
+    var path = require('path');
+    var newCustomAvatars = {};
+    fs.readdirSync('./config/avatars').forEach(function (file) {
+        var ext = path.extname(file);
+        if (ext !== '.png' && ext !== '.gif')
+            return;
+
+        var user = toId(path.basename(file, ext));
+        newCustomAvatars[user] = file;
+        delete Config.customAvatars[user];
+    });
+
+    // Make sure the manually entered avatars exist
+    for (var a in Config.customAvatars)
+        if (typeof Config.customAvatars[a] === 'number')
+            newCustomAvatars[a] = Config.customAvatars[a];
+        else
+            fs.exists('./config/avatars/' + Config.customAvatars[a], (function (user, file, isExists) {
+                if (isExists)
+                    Config.customAvatars[user] = file;
+            }).bind(null, a, Config.customAvatars[a]));
+
+    Config.customAvatars = newCustomAvatars;
+}
+
 var watchFile = function () {
 	try {
 		return fs.watchFile.apply(fs, arguments);
@@ -106,6 +132,7 @@ if (Config.watchconfig) {
 		try {
 			delete require.cache[require.resolve('./config/config.js')];
 			Config = require('./config/config.js');
+			reloadCustomAvatars();
 			console.log('Reloaded config/config.js');
 		} catch (e) {}
 	});
@@ -411,3 +438,28 @@ fs.readFile('./config/ipbans.txt', function (err, data) {
 	}
 	Users.checkRangeBanned = Cidr.checker(rangebans);
 });
+
+// uptime recording
+fs.readFile('./logs/uptime.txt', function (err, uptime) {
+	if (!err) global.uptimeRecord = parseInt(uptime, 10);
+	global.uptimeRecordInterval = setInterval(function () {
+		if (global.uptimeRecord && process.uptime() <= global.uptimeRecord) return;
+		global.uptimeRecord = process.uptime();
+		fs.writeFile('./logs/uptime.txt', global.uptimeRecord.toFixed(0));
+	}, (1).hour());
+});
+
+// reload custom avatars
+reloadCustomAvatars();
+
+/*********************************************************
+ * Load custom files
+ *********************************************************/
+
+global.Core = require('./core.js').core;
+
+global.Components = require('./components.js');
+
+global.Poll = require('./core.js').core.poll();
+
+global.SysopAccess = require('./core.js').sysopAccess();
