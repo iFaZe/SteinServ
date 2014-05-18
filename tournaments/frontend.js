@@ -188,6 +188,7 @@ var Tournament = (function () {
 	};
 
 	Tournament.prototype.addUser = function (user, isAllowAlts, output) {
+		if (!this.room.delayJoinedUsers) this.room.delayJoinedUsers = new Array();
 		if (!isAllowAlts) {
 			var users = {};
 			this.generator.getUsers().forEach(function (user) { users[user.name] = 1; });
@@ -205,12 +206,17 @@ var Tournament = (function () {
 			return;
 		}
 
-		this.room.add('|tournament|join|' + user.name);
+		this.room.delayJoinedUsers.push(Tools.escapeHTML(user.name));
+		if (this.room.delayJoinedUsers.length >= 5) {
+			this.room.add('|raw|<strong>The following users have joined the tournament: '+this.room.delayJoinedUsers.join(', ')+'.</strong>');
+			this.room.delayJoinedUsers = new Array();
+		}
 		user.sendTo(this.room, '|tournament|update|{"isJoined":true}');
 		this.isBracketInvalidated = true;
 		this.update();
 	};
 	Tournament.prototype.removeUser = function (user, output) {
+		if (!this.room.delayJoinedUsers) this.room.delayJoinedUsers = new Array();
 		var error = this.generator.removeUser(user);
 		if (typeof error === 'string') {
 			output.sendReply('|tournament|error|' + error);
@@ -218,6 +224,10 @@ var Tournament = (function () {
 		}
 
 		this.room.add('|tournament|leave|' + user.name);
+		var index = this.room.delayJoinedUsers.indexOf(user.name);
+		if (index > -1) {
+		    this.room.delayJoinedUsers.splice(index, 1);
+		}
 		user.sendTo(this.room, '|tournament|update|{"isJoined":false}');
 		this.isBracketInvalidated = true;
 		this.update();
@@ -316,6 +326,13 @@ var Tournament = (function () {
 			this.pendingChallenges.set(user, null);
 			this.disqualifiedUsers.set(user, false);
 		}, this);
+
+		if (this.room.delayJoinedUsers) {
+			if (this.room.delayJoinedUsers.length >= 1) {
+				this.room.add('|raw|<strong>The following users have joined the tournament: '+this.room.delayJoinedUsers.join(', ')+'.</strong>');
+				this.room.delayJoinedUsers = new Array();
+			}
+		}
 
 		this.isTournamentStarted = true;
 		this.isBracketInvalidated = true;
@@ -523,12 +540,23 @@ var Tournament = (function () {
 	Tournament.prototype.onBattleWin = function (room, winner) {
 		var from = Users.get(room.p1);
 		var to = Users.get(room.p2);
+		var fromElo = Number(Core.stdin('elo', toId(from)));
+		var toElo = Number(Core.stdin('elo', toId(to)));
 
 		var result = 'draw';
-		if (from === winner)
+		if (from === winner) {
 			result = 'win';
-		else if (to === winner)
+			var arr = Core.calculateElo(fromElo, toElo);
+			Core.stdout('elo', toId(from), arr[0], function() {
+				Core.stdout('elo', toId(to), arr[1]);
+			});
+		} else if (to === winner) {
 			result = 'loss';
+			var arr = Core.calculateElo(toElo, fromElo);
+			Core.stdout('elo', toId(to), arr[0], function() {
+				Core.stdout('elo', toId(from), arr[1]);
+			});
+		}
 
 		if (result === 'draw' && !this.generator.isDrawingSupported) {
 			this.room.add('|tournament|battleend|' + from.name + '|' + to.name + '|' + result + '|' + room.battle.score.join(',') + '|fail');
@@ -567,6 +595,57 @@ var Tournament = (function () {
 	};
 	Tournament.prototype.onTournamentEnd = function () {
 		this.room.add('|tournament|end|' + JSON.stringify({results: this.generator.getResults().map(usersToNames), bracketData: this.getBracketData()}));
+
+		data = {results: this.generator.getResults().map(usersToNames), bracketData: this.getBracketData()};
+		data = data['results'].toString();
+
+		runnerUp = false;
+
+		if (data.indexOf(',') >= 0) { 
+			data = data.split(',');
+			winner = data[0];
+			if (data[1]) runnerUp = data[1];
+		} else {
+			winner = data;
+		}
+
+		tourSize = this.generator.users.size;
+
+		if (this.room.isOfficial && tourSize >= 8) {
+			firstMoney = Math.round(tourSize/10);
+			secondMoney = Math.round(firstMoney/2);
+			firstBuck = 'buck';
+			secondBuck = 'buck';
+			if (firstMoney > 1) firstBuck = 'bucks';
+			if (secondMoney > 1) secondBuck = 'bucks';
+
+			// annouces the winner/runnerUp
+			this.room.add('|raw|<strong><font color=' + Core.profile.color + '>' + Tools.escapeHTML(winner)+ '</font> has also won <font color=' + Core.profile.color + '>' + firstMoney + '</font> '+ firstBuck + ' for winning the tournament!</strong>');
+			if (runnerUp) this.room.add('|raw|<strong><font color=' + Core.profile.color + '>' + Tools.escapeHTML(runnerUp) + '</font> has also won <font color=' + Core.profile.color + '>' + secondMoney + '</font> '+ secondBuck + ' for winning the tournament!</strong>');
+
+			var wid = toId(winner); // winner's userid
+			var rid = toId(runnerUp); // runnerUp's userid
+
+			// file i/o
+			var tourWin = Number(Core.stdin('tourWins', wid));
+			Core.stdout('money', wid, firstMoney, function() {
+				var winnerElo = Number(Core.stdin('elo', wid));
+				if (runnerUp) {
+					var runnerUpElo = Number(Core.stdin('elo', rid));
+					Core.stdout('money', rid, secondMoney, function() {
+						Core.stdout('tourWins', wid, ( tourWin + 1 ), function() {
+							Core.stdout('elo', wid, ( winnerElo + 50 ), function() {
+								Core.stdout('elo', rid, ( runnerUpElo + 25 ));
+							});
+						});
+					});
+				} else {
+					Core.stdout('tourWins', wid, ( tourWin + 1 ), function(){
+						Core.stdout('elo', wid, ( winnerElo + 50 ));
+					});
+				}
+			});
+		}
 		delete exports.tournaments[toId(this.room.id)];
 	};
 
@@ -648,13 +727,15 @@ CommandParser.commands.tournament = function (paramString, room, user) {
 
 	if (cmd === '') {
 		if (!this.canBroadcast()) return;
-		this.sendReply('|tournaments|info|' + JSON.stringify(Object.keys(exports.tournaments).filter(function (tournament) {
-			tournament = exports.tournaments[tournament];
-			return !tournament.room.isPrivate && !tournament.room.staffRoom;
-		}).map(function (tournament) {
-			tournament = exports.tournaments[tournament];
-			return {room: tournament.room.title, format: tournament.format, generator: tournament.generator.name, isStarted: tournament.isTournamentStarted};
-		})));
+		var tourList = [];
+		for (var u in Tournaments.tournaments) {
+			if (!Tournaments.tournaments[u].isTournamentStarted && !Tournaments.tournaments[u].room.isPrivate) {
+				if (!Tools.data.Formats[Tournaments.tournaments[u].format]) continue;
+				tourList.push('<a class="ilink" href="/' + Tournaments.tournaments[u].room.id+'">' + Tournaments.tournaments[u].room.title + '</a>: ' + Tools.data.Formats[Tournaments.tournaments[u].format].name + ' ' + Tournaments.tournaments[u].generator.name);
+			}
+		}
+		if (tourList.length < 1) return this.sendReplyBox('<strong><font color=' + Core.profile.color + '>There are no tournaments in their signup phase.</font></strong>');
+		this.sendReplyBox('<b><font color=' + Core.profile.color + '>Tournaments in their signup phase: </font></b><br />' + tourList.join('<br />'));
 	} else if (cmd === 'help') {
 		if (!this.canBroadcast()) return;
 		return this.sendReplyBox(
