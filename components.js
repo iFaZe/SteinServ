@@ -429,7 +429,7 @@ var components = exports.components = {
     },
 
     hide: function (target, room, user) {
-        if (!this.can('lock')) return;
+        if (!this.can('declare')) return;
         user.getIdentity = function () {
             if (this.muted) return '!' + this.name;
             if (this.locked) return '?' + this.name;
