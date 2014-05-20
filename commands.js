@@ -1066,7 +1066,7 @@ var commands = exports.commands = {
 		}
 		this.sendReply("Your hot-patch command was unrecognized.");
 	},
-*\
+*/
 	savelearnsets: function (target, room, user) {
 		if (!this.can('hotpatch')) return false;
 		fs.writeFile('data/learnsets.js', 'exports.BattleLearnsets = ' + JSON.stringify(BattleLearnsets) + ";\n");
