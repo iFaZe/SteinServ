@@ -30,7 +30,14 @@ var commands = exports.commands = {
 
 		return '/me ' + target;
 	},
+	
+	spank: function (target, room, user, connection) {
+		// By default, /me allows a blank message
+		if (target) target = this.canTalk(target);
+		if (!target) return;
 
+		return this.parse('/me spanks ' + target + '!!!');
+	},
 	mee: function (target, room, user, connection) {
 		// By default, /mee allows a blank message
 		if (target) target = this.canTalk(target);
