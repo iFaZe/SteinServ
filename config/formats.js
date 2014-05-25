@@ -115,6 +115,14 @@ exports.Formats = [
 		ruleset: ['Pokemon', 'Standard', 'Evasion Abilities Clause', 'Team Preview'],
 		banlist: ['Uber', 'Drizzle ++ Swift Swim', 'Soul Dew']
 	},
+	{
+		name: "Monotype Tier Shift",
+		section: 'Other Metagames',
+
+		mod: 'tiershift',
+		ruleset: ['Pokemon', 'Standard', 'Evasion Abilities Clause', 'Team Preview', 'Same Type Clause'],
+		banlist: ['Uber', 'Soul Dew']
+	},
 
 
 	// XY Doubles
