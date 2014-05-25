@@ -1,3 +1,5 @@
+/config//config.js
+/config/chatrooms.json
 /config/usergroups.csv
 /logs/*
 /node_modules
