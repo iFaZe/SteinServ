@@ -107,6 +107,15 @@ exports.Formats = [
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview']
 	},
+	{
+		name: "Tier Shift",
+		section: 'Other Metagames',
+
+		mod: 'tiershift',
+		ruleset: ['Pokemon', 'Standard', 'Evasion Abilities Clause', 'Team Preview'],
+		banlist: ['Uber', 'Drizzle ++ Swift Swim', 'Soul Dew']
+	},
+
 
 	// XY Doubles
 	///////////////////////////////////////////////////////////////////
