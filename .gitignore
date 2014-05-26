@@ -1,4 +1,4 @@
-/config//config.js
+/config/config.js
 /config/chatrooms.json
 /config/usergroups.csv
 /logs/*
