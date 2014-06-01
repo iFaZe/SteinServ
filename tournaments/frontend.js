@@ -124,7 +124,7 @@ var Tournament = (function () {
 
 	Tournament.prototype.update = function (targetUser) {
 		if (targetUser && (this.isBracketInvalidated || (this.isTournamentStarted && this.isAvailableMatchesInvalidated))) {
-			this.room.add("Error: update() called with a target user when data invalidated: " + this.isBracketInvalidated + ", " + (this.isTournamentStarted && this.isAvailableMatchesInvalidated) + "; Please report this to an admin.");
+			var test = 1;
 			return;
 		}
 
