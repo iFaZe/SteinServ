@@ -211,7 +211,37 @@ var core = exports.core = {
         var arr = [winner, loser];
         return arr;
     },
+    
+       calculateElow: function (winner, loser) {
+        if (winner === 0) winner = 1000;
+        if (loser === 0) loser = 1000;
+        var kFactor = 32;
+        var ratingDifference = loser - winner;
+        var expectedScoreWinner = 1 / (1 + Math.pow(10, ratingDifference / 400));
 
+        var e = kFactor * (1 - expectedScoreWinner);
+        winner = winner + e;
+        loser = loser - e;
+
+        var arr = winner;
+        return arr;
+    },
+
+   calculateElol: function (winner, loser) {
+        if (winner === 0) winner = 1000;
+        if (loser === 0) loser = 1000;
+        var kFactor = 32;
+        var ratingDifference = loser - winner;
+        var expectedScoreWinner = 1 / (1 + Math.pow(10, ratingDifference / 400));
+
+        var e = kFactor * (1 - expectedScoreWinner);
+        winner = winner + e;
+        loser = loser - e;
+
+        var arr = loser;
+        return arr;
+    },
+    
     ladder: function () {
         var data = fs.readFileSync('config/elo.csv', 'utf-8');
         var row = ('' + data).split("\n");
