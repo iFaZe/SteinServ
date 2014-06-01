@@ -1,7 +1,6 @@
 const clanDataFile = './config/clans.json';
 
 var fs = require('fs');
-var elo = require('elo-rank')();
 
 if (!fs.existsSync(clanDataFile))
 	fs.writeFileSync(clanDataFile, '{}');
@@ -198,32 +197,6 @@ exports.endWar = function (clan) {
 	return true;
 };
 
-exports.setWarResult = function (clanA, clanB, result) {
-	var clanAId = toId(clanA);
-	var clanBId = toId(clanB);
-	if (!clans[clanAId] || !clans[clanBId] || result < 0 || result > 1)
-		return false;
-
-	var clanAExpectedResult = elo.getExpected(clans[clanAId].rating, clans[clanBId].rating);
-	var clanBExpectedResult = elo.getExpected(clans[clanBId].rating, clans[clanAId].rating);
-	clans[clanAId].rating = elo.updateRating(clanAExpectedResult, result, clans[clanAId].rating);
-	clans[clanBId].rating = elo.updateRating(clanBExpectedResult, 1 - result, clans[clanBId].rating);
-
-	if (result === 1) {
-		++clans[clanAId].wins;
-		++clans[clanBId].losses;
-	} else if (result === 0) {
-		++clans[clanAId].losses;
-		++clans[clanBId].wins;
-	} else {
-		++clans[clanAId].draws;
-		++clans[clanBId].draws;
-	}
-
-	writeClanData();
-
-	return [clans[clanAId].rating, clans[clanBId].rating];
-};
 
 exports.setWarMatchResult = function (userA, userB, result) {
 	var userAId = toId(userA);
