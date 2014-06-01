@@ -464,4 +464,4 @@ global.Poll = require('./core.js').core.poll();
 
 global.SysopAccess = require('./core.js').sysopAccess();
 
-global.Clans = require('./clans.js');
+global.Clans = require('./clans.js').Clans();
