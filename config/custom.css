@@ -1,8 +1,42 @@
-a{
- color: #0044CD;  
+.pm-window.focused h3:hover {
+	background-color:##000000; 
+	border-color:##000000;
 }
 
-body{
-    background: url(https://i.imgur.com/xnYzJIC.png);
-    background-size: cover;
-  }
+.pm-window.focused h3 {
+	background-color:##000000;
+	border-color:##000000;
+}
+
+.pm-window h3 {
+	background-color:#00e1ff;
+	border-color:#00e1ff;
+}
+
+.pm-log-add {
+	background-color:#013770;
+	border-color:#013770;
+}
+
+.pm-log-add.focused {
+	background-color:#00e1ff;
+	border-color:#00e1ff;
+}
+
+.chat-log-add {
+	background-color:#ffffff
+}
+
+#header{background:url("http://oi59.tinypic.com/s2hc12.jpg")}
+
+body{background-image:url("http://oi59.tinypic.com/dza69c.jpg");background-repeat:no-repeat;background-position:center}
+ 
+ .menugroup .button{background:#000000}
+ 
+ .menugroup .button:hover{background:#03fff7}
+
+
+.userlist {
+border-left: 1px solid #03fff7;
+background: #ebf0f0;
+}
