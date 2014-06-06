@@ -738,6 +738,36 @@ exports.Formats = [
 		searchShow: false,
 		debug: true,
 		ruleset: ['Pokemon', 'HP Percentage Mod']
-	}
+	},
 
+        // Omega Custom Specials
+	///////////////////////////////////////////////////////////////////
+	
+	{
+		name: "Free For All",
+		section: "Omega Custom Specials",
+		column: " 2",
+
+		ruleset: ['Team Preview', 'standard'],
+		banlist: ['Blissey']
+	},
+	{
+		name: "2 vs 2",
+		section: "Omega Custom Specials",
+
+		gameType: 'doubles',
+		onBegin: function () {
+			this.debug('cutting down to 2');
+			this.p1.pokemon = this.p1.pokemon.slice(0, 2);
+			this.p1.pokemonLeft = this.p1.pokemon.length;
+			this.p2.pokemon = this.p2.pokemon.slice(0, 2);
+			this.p2.pokemonLeft = this.p2.pokemon.length;
+		},
+		ruleset: ['Pokemon', 'Standard GBU'],
+		validateTeam: function (team, format) {
+			if (team.length < 2) return ['You must bring at least 2 Pokemon.'];
+		}
+	},
 ];
+
+
