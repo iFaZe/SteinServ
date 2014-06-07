@@ -75,8 +75,10 @@ if (!Object.select) {
 
 // Make sure config.js exists, and copy it over from config-example.js
 // if it doesn't
-
-var fs = require('fs');
+global.fs = require('fs');
+if (!('existsSync' in fs)) {
+	fs.existsSync = require('path').existsSync;
+}
 
 // Synchronously, since it's needed before we can start the server
 if (!fs.existsSync('./config/config.js')) {
@@ -315,6 +317,20 @@ global.toId = function (text) {
 	else if (text && text.userid) text = text.userid;
 
 	return string(text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+};
+global.toUserid = toId;
+
+global.sanitize = function(str, strEscape) {
+	str = (''+(str||''));
+	str = str.escapeHTML();
+	if (strEscape) str = str.replace(/'/g, '\\\'');
+	return str;
+};
+global.toName = function(name) {
+	name = string(name);
+	name = name.replace(/[\|\s\[\]\,]+/g, ' ').trim();
+	if (name.length > 18) name = name.substr(0,18).trim();
+	return name;
 };
 
 /**
