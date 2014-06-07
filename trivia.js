@@ -42,14 +42,14 @@ return trivia
                                 else if(trivia.isOn == true){
                                 this.sendReply('There is already a game going on :I') 
                                 }
-                                else if(room.id !== 'trivia'){
+                                else if(room.id !== 'triviaa'){
                                 this.sendReply('Only in trivia room :I');
                                 }
                 else {
             trivia.isOn = true;
                         trivia.question = 'Nothing at the moment';
                         trivia.host = 'No-one at the moment'
-            Rooms.rooms.lobby.add('Go to the room trivia to play trivia')
+            Rooms.rooms.lobby.add('A game of trivia has started!')
                         }
             },
                         endtrivia: function(target, room, user){
