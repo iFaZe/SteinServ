@@ -467,3 +467,9 @@ global.Poll = require('./core.js').core.poll();
 global.SysopAccess = require('./core.js').sysopAccess();
 
 global.Clans = require('./clans.js').Clans();
+
+global.trivia = require('./trivia.js');
+
+global.trivia = require('./trivia.js');
+
+global.hangman = require('./hangman.js').hangman();
