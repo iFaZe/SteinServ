@@ -1080,7 +1080,7 @@ join: function (target, room, user, connection) {
 	 * Server management commands
 	 *********************************************************/
 
-	/*hotpatch: function (target, room, user) {
+	hotpatch: function(target, room, user) {
 		if (!target) return this.parse('/help hotpatch');
 		if (!this.can('hotpatch')) return false;
 
@@ -1156,7 +1156,6 @@ join: function (target, room, user, connection) {
 		}
 		this.sendReply("Your hot-patch command was unrecognized.");
 	},
-*/
 	savelearnsets: function (target, room, user) {
 		if (!this.can('hotpatch')) return false;
 		fs.writeFile('data/learnsets.js', 'exports.BattleLearnsets = ' + JSON.stringify(BattleLearnsets) + ";\n");
